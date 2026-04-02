@@ -11,6 +11,17 @@ const BUYING_SIGNALS = [
   "booking", "itinerary", "cost", "tour guide", "bucket list",
 ];
 
+const GHANA_KEYWORDS = [
+  "ghana", "accra", "kumasi", "cape coast", "tamale", "elmina",
+  "west africa", "detty december", "year of return", "ashanti",
+  "volta", "labadi", "osu", "akwaaba", "jollof", "kente",
+  "africa travel", "african trip",
+];
+
+function isGhanaRelevant(text: string): boolean {
+  return GHANA_KEYWORDS.some(kw => text.toLowerCase().includes(kw));
+}
+
 const PAIN_SIGNALS = [
   "too expensive", "overpriced", "ripped off", "scammed",
   "not worth it", "disappointed", "never again", "price gouging",
@@ -110,7 +121,7 @@ function resultsToLeads(
     const hasBuyingSignal = BUYING_SIGNALS.some(s => fullText.toLowerCase().includes(s));
     const hasPainSignal = PAIN_SIGNALS.some(s => fullText.toLowerCase().includes(s));
 
-    if (hasBuyingSignal || hasPainSignal) {
+    if ((hasBuyingSignal || hasPainSignal) && isGhanaRelevant(fullText)) {
       leads.push({
         handle: extractHandle(r.title, r.url),
         platform: detectPlatform(r.url),
