@@ -42,12 +42,32 @@ function classify(text: string): Lead["signalType"] {
 interface ApifyTikTokVideo {
   id: string;
   text: string;
+  createTime: number; // Unix timestamp
+  createTimeISO: string;
   authorMeta: { name: string; fans: number; verified: boolean };
   playCount: number;
   diggCount: number;
   commentCount: number;
   shareCount: number;
   hashtags: Array<{ name: string }>;
+}
+
+const SIXTY_DAYS_MS = 60 * 24 * 60 * 60 * 1000;
+
+function isRecent(video: ApifyTikTokVideo): boolean {
+  const now = Date.now();
+  // Try createTime (unix seconds) first
+  if (video.createTime) {
+    const videoDate = video.createTime * 1000; // convert to ms
+    return (now - videoDate) < SIXTY_DAYS_MS;
+  }
+  // Try ISO string
+  if (video.createTimeISO) {
+    const videoDate = new Date(video.createTimeISO).getTime();
+    return (now - videoDate) < SIXTY_DAYS_MS;
+  }
+  // If no date available, include it (benefit of the doubt)
+  return true;
 }
 
 async function runApifyActor(input: Record<string, unknown>): Promise<ApifyTikTokVideo[]> {
@@ -110,6 +130,9 @@ export async function runApifyScan(scanType: "intent" | "detty" | "full"): Promi
     const sorted = [...videos].sort((a, b) => (b.playCount ?? 0) - (a.playCount ?? 0));
 
     for (const video of sorted) {
+      // Skip videos older than 60 days
+      if (!isRecent(video)) continue;
+
       const text = video.text ?? "";
       const author = video.authorMeta?.name ?? "unknown";
       const plays = video.playCount ?? 0;
