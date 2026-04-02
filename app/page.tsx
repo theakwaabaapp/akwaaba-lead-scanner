@@ -10,13 +10,14 @@ import {
   type LeadStatus, type StoredLead,
 } from "@/lib/lead-store";
 
-type ActiveTab = "social" | "tiktok-deep" | "reddit" | "youtube" | "quora" | "competitors" | "content" | "saved";
+type ActiveTab = "social" | "tiktok-deep" | "trends" | "reddit" | "youtube" | "quora" | "competitors" | "content" | "saved";
 type ScanType = "intent" | "detty" | "full";
 type CompetitorScanType = "pricing" | "content" | "full";
 
 const TAB_CONFIG: Record<string, { icon: string; label: string; color: string; endpoint: string }> = {
   social: { icon: "📱", label: "Social", color: "green", endpoint: "/api/scan" },
   "tiktok-deep": { icon: "🔬", label: "TikTok Deep", color: "black", endpoint: "/api/apify-scan" },
+  trends: { icon: "📡", label: "Trend Radar", color: "indigo", endpoint: "/api/trend-scan" },
   reddit: { icon: "💬", label: "Reddit", color: "orange", endpoint: "/api/reddit-scan" },
   youtube: { icon: "▶️", label: "YouTube", color: "red", endpoint: "/api/youtube-scan" },
   quora: { icon: "❓", label: "Quora", color: "red", endpoint: "/api/quora-scan" },
@@ -35,6 +36,13 @@ const SCAN_LABELS: Record<string, Record<string, { label: string; desc: string; 
     intent: { label: "Travel Hashtags", desc: "Deep scan #ghanatravel #visitghana with engagement data", icon: "🎯" },
     detty: { label: "Detty December", desc: "Deep scan #dettydecember with play counts + likes", icon: "🔥" },
     full: { label: "Full Deep Scan", desc: "All Ghana hashtags — plays, likes, comments, follower counts", icon: "⚡" },
+  },
+  trends: {
+    viral: { label: "Viral Now", desc: "Currently viral Ghana/Africa travel content this week", icon: "📈" },
+    news: { label: "Travel News", desc: "Ghana tourism news, visa changes, new hotels, events", icon: "📰" },
+    controversy: { label: "Controversies", desc: "Travel complaints, scams, drama — opportunities to respond", icon: "⚠️" },
+    influencer: { label: "Creator Watch", desc: "Latest posts from 12 Ghana travel influencers", icon: "👀" },
+    full: { label: "Full Radar", desc: "Everything — viral + news + controversy + influencers", icon: "⚡" },
   },
   reddit: {
     intent: { label: "Trip Planning", desc: "Ghana travel discussions", icon: "🗺️" },
