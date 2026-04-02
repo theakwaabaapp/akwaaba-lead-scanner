@@ -242,6 +242,10 @@ export default function Dashboard() {
             >
               {showDMPanel ? "Hide Scripts" : "DM Scripts"}
             </button>
+            <a href="/guide"
+              className="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-all">
+              How To
+            </a>
             <a href="https://akwaaba.app" target="_blank" rel="noopener noreferrer"
               className="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-all hidden sm:inline-block">
               akwaaba.app
