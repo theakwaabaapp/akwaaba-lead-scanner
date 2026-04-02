@@ -1,23 +1,27 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import Image from "next/image";
 import type { Lead, ScanResult } from "@/lib/types";
 
 type ScanType = "intent" | "detty" | "full";
 type FilterPlatform = "all" | "TikTok" | "Instagram" | "Reddit" | "Twitter";
 
-const SCAN_LABELS: Record<ScanType, { label: string; desc: string }> = {
+const SCAN_LABELS: Record<ScanType, { label: string; desc: string; icon: string }> = {
   intent: {
     label: "Intent Monitor",
     desc: "Find people planning Ghana trips, asking about packages, ready to book",
+    icon: "🎯",
   },
   detty: {
     label: "Detty December",
     desc: "Find 2025 price-gouging victims + 2026 planners for the $3,995 package",
+    icon: "🔥",
   },
   full: {
     label: "Full Sweep",
     desc: "Run both scans together for maximum lead coverage",
+    icon: "⚡",
   },
 };
 
@@ -134,23 +138,35 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="bg-akwaaba-green-dark text-white">
+      <header className="bg-gradient-to-r from-akwaaba-green-dark to-akwaaba-green text-white shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-akwaaba-gold rounded-lg flex items-center justify-center font-bold text-akwaaba-green-dark text-lg">
-              A
-            </div>
+            <Image
+              src="/akwaaba-logo.png"
+              alt="Akwaaba"
+              width={44}
+              height={44}
+              className="rounded-lg"
+            />
             <div>
-              <h1 className="text-xl font-bold tracking-tight">Akwaaba Lead Scanner</h1>
-              <p className="text-sm text-green-200 opacity-80">Social media intelligence</p>
+              <h1 className="text-xl font-bold tracking-tight">Lead Scanner</h1>
+              <p className="text-xs text-green-200 opacity-80">Social media intelligence for marketing</p>
             </div>
           </div>
-          <div className="text-sm text-green-200">
+          <div className="flex items-center gap-4">
             {result && (
-              <span>
-                Last scan: {new Date(result.meta.date).toLocaleString()} ({result.meta.duration}ms)
+              <span className="text-xs text-green-200 hidden sm:inline">
+                Last scan: {new Date(result.meta.date).toLocaleString()} &middot; {(result.meta.duration / 1000).toFixed(1)}s
               </span>
             )}
+            <a
+              href="https://akwaaba.app"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-lg transition-all"
+            >
+              akwaaba.app
+            </a>
           </div>
         </div>
       </header>
@@ -168,14 +184,17 @@ export default function Dashboard() {
                   <button
                     key={type}
                     onClick={() => setScanType(type)}
-                    className={`text-left p-3 rounded-xl border-2 transition-all ${
+                    className={`text-left p-4 rounded-xl border-2 transition-all ${
                       scanType === type
-                        ? "border-akwaaba-green bg-green-50"
-                        : "border-gray-200 hover:border-gray-300"
+                        ? "border-akwaaba-green bg-green-50 shadow-md shadow-green-100"
+                        : "border-gray-200 hover:border-gray-300 bg-white"
                     }`}
                   >
-                    <div className="font-semibold text-sm">{SCAN_LABELS[type].label}</div>
-                    <div className="text-xs text-gray-500 mt-0.5">{SCAN_LABELS[type].desc}</div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-lg">{SCAN_LABELS[type].icon}</span>
+                      <span className="font-semibold text-sm">{SCAN_LABELS[type].label}</span>
+                    </div>
+                    <div className="text-xs text-gray-500">{SCAN_LABELS[type].desc}</div>
                   </button>
                 ))}
               </div>
@@ -346,18 +365,44 @@ export default function Dashboard() {
         {/* Empty State */}
         {!result && !scanning && (
           <div className="text-center py-20">
-            <div className="w-20 h-20 bg-akwaaba-green/10 rounded-full flex items-center justify-center mx-auto mb-6">
-              <div className="w-10 h-10 bg-akwaaba-gold rounded-lg flex items-center justify-center font-bold text-akwaaba-green-dark text-xl">
-                A
-              </div>
+            <div className="w-24 h-24 bg-akwaaba-green/5 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-akwaaba-green/10">
+              <Image
+                src="/akwaaba-logo.png"
+                alt="Akwaaba"
+                width={56}
+                height={56}
+                className="rounded-lg"
+              />
             </div>
             <h2 className="text-2xl font-bold text-gray-800 mb-2">Ready to find leads</h2>
-            <p className="text-gray-500 max-w-md mx-auto mb-1">
-              Select a scan type above and click Run Scan to find people planning Ghana trips on TikTok, Instagram, and Reddit.
+            <p className="text-gray-500 max-w-lg mx-auto mb-4">
+              Select a scan type above and click <strong>Run Scan</strong> to find people planning Ghana trips on TikTok, Instagram, and Reddit.
             </p>
-            <p className="text-sm text-gray-400">
-              Results include real handles, video URLs, and recommended DM scripts.
-            </p>
+            <div className="flex flex-wrap gap-3 justify-center text-xs text-gray-400">
+              <span className="bg-white px-3 py-1.5 rounded-full border border-gray-100">Real @handles</span>
+              <span className="bg-white px-3 py-1.5 rounded-full border border-gray-100">Video URLs</span>
+              <span className="bg-white px-3 py-1.5 rounded-full border border-gray-100">Lead scoring 1-5</span>
+              <span className="bg-white px-3 py-1.5 rounded-full border border-gray-100">CSV export</span>
+            </div>
+          </div>
+        )}
+
+        {/* Scanning State */}
+        {scanning && (
+          <div className="text-center py-16">
+            <div className="w-16 h-16 mx-auto mb-6 relative">
+              <div className="absolute inset-0 rounded-full border-4 border-akwaaba-green/20"></div>
+              <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-akwaaba-green animate-spin"></div>
+              <Image
+                src="/akwaaba-logo.png"
+                alt=""
+                width={32}
+                height={32}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded"
+              />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-700 mb-1">Scanning social media...</h3>
+            <p className="text-sm text-gray-400">Searching TikTok, Reddit, Instagram for Ghana travel leads</p>
           </div>
         )}
       </main>
@@ -365,7 +410,10 @@ export default function Dashboard() {
       {/* Footer */}
       <footer className="mt-auto border-t border-gray-200 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between text-xs text-gray-400">
-          <span>Akwaaba Lead Scanner v1.0</span>
+          <div className="flex items-center gap-2">
+            <Image src="/akwaaba-logo.png" alt="" width={16} height={16} className="rounded" />
+            <span>Akwaaba Lead Scanner v1.0</span>
+          </div>
           <span>Powered by Brave Search API</span>
         </div>
       </footer>
