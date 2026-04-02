@@ -4,9 +4,9 @@ import { useState, useCallback } from "react";
 import Image from "next/image";
 import type { Lead, ScanResult } from "@/lib/types";
 
-type ActiveTab = "social" | "reddit";
+type ActiveTab = "social" | "reddit" | "youtube";
 type ScanType = "intent" | "detty" | "full";
-type FilterPlatform = "all" | "TikTok" | "Instagram" | "Reddit" | "Twitter";
+type FilterPlatform = "all" | "TikTok" | "Instagram" | "Reddit" | "Twitter" | "YouTube";
 
 const SCAN_LABELS: Record<ScanType, { label: string; desc: string; icon: string }> = {
   intent: {
@@ -44,6 +44,24 @@ const REDDIT_SCAN_LABELS: Record<ScanType, { label: string; desc: string; icon: 
   },
 };
 
+const YOUTUBE_SCAN_LABELS: Record<ScanType, { label: string; desc: string; icon: string }> = {
+  intent: {
+    label: "Travel Vlogs",
+    desc: "Ghana travel vlogs, itinerary videos, and trip planning guides",
+    icon: "🗺️",
+  },
+  detty: {
+    label: "Detty December",
+    desc: "Detty December vlogs, cost breakdowns, and honest reviews",
+    icon: "🔥",
+  },
+  full: {
+    label: "Full Sweep",
+    desc: "All Ghana travel YouTube content — vlogs, guides, and reviews",
+    icon: "⚡",
+  },
+};
+
 const SCORE_LABELS: Record<number, string> = {
   5: "HOT",
   4: "HIGH",
@@ -66,12 +84,14 @@ function PlatformIcon({ platform }: { platform: string }) {
     Instagram: "I",
     Reddit: "R",
     Twitter: "X",
+    YouTube: "Y",
   };
   const colorMap: Record<string, string> = {
     TikTok: "bg-black text-white",
     Instagram: "bg-gradient-to-br from-purple-500 to-pink-500 text-white",
     Reddit: "bg-orange-600 text-white",
     Twitter: "bg-black text-white",
+    YouTube: "bg-red-600 text-white",
   };
   return (
     <span
@@ -276,12 +296,13 @@ export default function Dashboard() {
   const [scanning, setScanning] = useState(false);
   const [socialResult, setSocialResult] = useState<ScanResult | null>(null);
   const [redditResult, setRedditResult] = useState<ScanResult | null>(null);
+  const [youtubeResult, setYoutubeResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [filterPlatform, setFilterPlatform] = useState<FilterPlatform>("all");
   const [filterMinScore, setFilterMinScore] = useState(1);
 
-  const result = activeTab === "social" ? socialResult : redditResult;
-  const scanLabels = activeTab === "social" ? SCAN_LABELS : REDDIT_SCAN_LABELS;
+  const result = activeTab === "social" ? socialResult : activeTab === "reddit" ? redditResult : youtubeResult;
+  const scanLabels = activeTab === "social" ? SCAN_LABELS : activeTab === "reddit" ? REDDIT_SCAN_LABELS : YOUTUBE_SCAN_LABELS;
 
   const filteredLeads = (result?.leads ?? []).filter((lead) => {
     if (filterPlatform !== "all" && lead.platform !== filterPlatform) return false;
@@ -292,7 +313,12 @@ export default function Dashboard() {
   const runScan = useCallback(async () => {
     setScanning(true);
     setError(null);
-    const endpoint = activeTab === "social" ? "/api/scan" : "/api/reddit-scan";
+    const endpoints: Record<ActiveTab, string> = {
+      social: "/api/scan",
+      reddit: "/api/reddit-scan",
+      youtube: "/api/youtube-scan",
+    };
+    const endpoint = endpoints[activeTab];
     try {
       const res = await fetch(endpoint, {
         method: "POST",
@@ -303,8 +329,10 @@ export default function Dashboard() {
       if (data.success) {
         if (activeTab === "social") {
           setSocialResult(data.data);
-        } else {
+        } else if (activeTab === "reddit") {
           setRedditResult(data.data);
+        } else {
+          setYoutubeResult(data.data);
         }
       } else {
         setError(data.error ?? "Scan failed");
@@ -403,10 +431,26 @@ export default function Dashboard() {
               }`}
             >
               <span className="mr-1.5">💬</span>
-              Reddit Comments
+              Reddit
               {redditResult && (
                 <span className="ml-1.5 bg-orange-500 text-white text-xs px-1.5 py-0.5 rounded-full">
                   {redditResult.meta.totalLeads}
+                </span>
+              )}
+            </button>
+            <button
+              onClick={() => { setActiveTab("youtube"); setFilterPlatform("all"); }}
+              className={`px-5 py-2.5 text-sm font-medium rounded-t-lg transition-all ${
+                activeTab === "youtube"
+                  ? "bg-akwaaba-cream text-akwaaba-green-dark"
+                  : "text-green-200 hover:text-white hover:bg-white/10"
+              }`}
+            >
+              <span className="mr-1.5">▶️</span>
+              YouTube
+              {youtubeResult && (
+                <span className="ml-1.5 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+                  {youtubeResult.meta.totalLeads}
                 </span>
               )}
             </button>
@@ -415,7 +459,7 @@ export default function Dashboard() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex-1">
-        {/* Reddit tab info banner */}
+        {/* Tab info banners */}
         {activeTab === "reddit" && !redditResult && !scanning && (
           <div className="bg-orange-50 border border-orange-200 rounded-xl p-4 mb-6 flex items-start gap-3">
             <span className="text-2xl">💬</span>
@@ -423,6 +467,17 @@ export default function Dashboard() {
               <p className="text-sm font-semibold text-orange-800">Reddit Comment Mining</p>
               <p className="text-xs text-orange-600 mt-0.5">
                 Scans r/ghana, r/travel, r/solotravel, r/blackladies, r/AfricanDiaspora — digs into comment threads to find people asking about trips, costs, and packages. No API key needed.
+              </p>
+            </div>
+          </div>
+        )}
+        {activeTab === "youtube" && !youtubeResult && !scanning && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex items-start gap-3">
+            <span className="text-2xl">▶️</span>
+            <div>
+              <p className="text-sm font-semibold text-red-800">YouTube Comment Mining</p>
+              <p className="text-xs text-red-600 mt-0.5">
+                Finds Ghana travel vlogs, cost breakdowns, and Detty December reviews on YouTube. Extracts video creators and comment authors with buying signals. No API key needed.
               </p>
             </div>
           </div>
@@ -444,7 +499,9 @@ export default function Dashboard() {
                       scanType === type
                         ? activeTab === "reddit"
                           ? "border-orange-500 bg-orange-50 shadow-md shadow-orange-100"
-                          : "border-akwaaba-green bg-green-50 shadow-md shadow-green-100"
+                          : activeTab === "youtube"
+                            ? "border-red-500 bg-red-50 shadow-md shadow-red-100"
+                            : "border-akwaaba-green bg-green-50 shadow-md shadow-green-100"
                         : "border-gray-200 hover:border-gray-300 bg-white"
                     }`}
                   >
@@ -466,10 +523,15 @@ export default function Dashboard() {
                   ? "bg-gray-400 cursor-not-allowed animate-scan-pulse"
                   : activeTab === "reddit"
                     ? "bg-orange-600 hover:bg-orange-500 active:scale-95 shadow-lg shadow-orange-200"
-                    : "bg-akwaaba-green hover:bg-akwaaba-green-light active:scale-95 shadow-lg shadow-green-200"
+                    : activeTab === "youtube"
+                      ? "bg-red-600 hover:bg-red-500 active:scale-95 shadow-lg shadow-red-200"
+                      : "bg-akwaaba-green hover:bg-akwaaba-green-light active:scale-95 shadow-lg shadow-green-200"
               }`}
             >
-              {scanning ? (activeTab === "reddit" ? "Mining comments..." : "Scanning...") : "Run Scan"}
+              {scanning
+                ? activeTab === "reddit" ? "Mining comments..." : activeTab === "youtube" ? "Scanning YouTube..." : "Scanning..."
+                : "Run Scan"
+              }
             </button>
           </div>
         </div>
@@ -491,7 +553,7 @@ export default function Dashboard() {
             onFilterMinScore={setFilterMinScore}
             onExport={exportCSV}
             platformCounts={platformCounts}
-            showSubreddit={activeTab === "reddit"}
+            showSubreddit={activeTab === "reddit" || activeTab === "youtube"}
           />
         )}
 
@@ -501,6 +563,8 @@ export default function Dashboard() {
             <div className="w-24 h-24 bg-akwaaba-green/5 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-akwaaba-green/10">
               {activeTab === "reddit" ? (
                 <span className="text-4xl">💬</span>
+              ) : activeTab === "youtube" ? (
+                <span className="text-4xl">▶️</span>
               ) : (
                 <Image
                   src="/akwaaba-logo.png"
@@ -512,12 +576,14 @@ export default function Dashboard() {
               )}
             </div>
             <h2 className="text-2xl font-bold text-gray-800 mb-2">
-              {activeTab === "reddit" ? "Ready to mine Reddit" : "Ready to find leads"}
+              {activeTab === "reddit" ? "Ready to mine Reddit" : activeTab === "youtube" ? "Ready to scan YouTube" : "Ready to find leads"}
             </h2>
             <p className="text-gray-500 max-w-lg mx-auto mb-4">
               {activeTab === "reddit"
                 ? "Select a scan type and click Run Scan to dig through Reddit comment threads for people discussing Ghana travel, costs, and planning."
-                : "Select a scan type above and click Run Scan to find people planning Ghana trips on TikTok, Instagram, and Reddit."
+                : activeTab === "youtube"
+                  ? "Select a scan type and click Run Scan to find Ghana travel vlogs, cost breakdowns, and trip reviews on YouTube."
+                  : "Select a scan type above and click Run Scan to find people planning Ghana trips on TikTok, Instagram, and Reddit."
               }
             </p>
             <div className="flex flex-wrap gap-3 justify-center text-xs text-gray-400">
@@ -544,10 +610,12 @@ export default function Dashboard() {
         {scanning && (
           <div className="text-center py-16">
             <div className="w-16 h-16 mx-auto mb-6 relative">
-              <div className={`absolute inset-0 rounded-full border-4 ${activeTab === "reddit" ? "border-orange-200" : "border-akwaaba-green/20"}`}></div>
-              <div className={`absolute inset-0 rounded-full border-4 border-transparent ${activeTab === "reddit" ? "border-t-orange-500" : "border-t-akwaaba-green"} animate-spin`}></div>
+              <div className={`absolute inset-0 rounded-full border-4 ${activeTab === "reddit" ? "border-orange-200" : activeTab === "youtube" ? "border-red-200" : "border-akwaaba-green/20"}`}></div>
+              <div className={`absolute inset-0 rounded-full border-4 border-transparent ${activeTab === "reddit" ? "border-t-orange-500" : activeTab === "youtube" ? "border-t-red-500" : "border-t-akwaaba-green"} animate-spin`}></div>
               {activeTab === "reddit" ? (
                 <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl">💬</span>
+              ) : activeTab === "youtube" ? (
+                <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl">▶️</span>
               ) : (
                 <Image
                   src="/akwaaba-logo.png"
@@ -559,12 +627,14 @@ export default function Dashboard() {
               )}
             </div>
             <h3 className="text-lg font-semibold text-gray-700 mb-1">
-              {activeTab === "reddit" ? "Mining Reddit comments..." : "Scanning social media..."}
+              {activeTab === "reddit" ? "Mining Reddit comments..." : activeTab === "youtube" ? "Scanning YouTube..." : "Scanning social media..."}
             </h3>
             <p className="text-sm text-gray-400">
               {activeTab === "reddit"
                 ? "Searching 5 subreddits and digging into comment threads"
-                : "Searching TikTok, Reddit, Instagram for Ghana travel leads"
+                : activeTab === "youtube"
+                  ? "Finding Ghana travel vlogs and scanning for leads"
+                  : "Searching TikTok, Reddit, Instagram for Ghana travel leads"
               }
             </p>
           </div>
@@ -578,7 +648,7 @@ export default function Dashboard() {
             <Image src="/akwaaba-logo.png" alt="" width={16} height={16} className="rounded" />
             <span>Akwaaba Lead Scanner v1.0</span>
           </div>
-          <span>{activeTab === "reddit" ? "Reddit public JSON" : "Powered by Brave Search API"}</span>
+          <span>{activeTab === "reddit" ? "Reddit public JSON" : activeTab === "youtube" ? "YouTube via Brave Search" : "Powered by Brave Search API"}</span>
         </div>
       </footer>
     </div>

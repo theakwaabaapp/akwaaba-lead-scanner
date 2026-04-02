@@ -1,6 +1,6 @@
 export interface Lead {
   handle: string;
-  platform: "TikTok" | "Instagram" | "Reddit" | "Twitter";
+  platform: "TikTok" | "Instagram" | "Reddit" | "Twitter" | "YouTube";
   signalType: "HIGH" | "WARM" | "INTEREST" | "BURNED" | "PLANNER";
   score: number;
   quote: string;
