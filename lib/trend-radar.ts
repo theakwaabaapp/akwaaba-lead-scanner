@@ -1,4 +1,5 @@
 import type { Lead, ScanResult } from "./types";
+import { isGhanaRelevant } from "./ghana-filter";
 
 const BRAVE_API_KEY = process.env.BRAVE_API_KEY;
 const FIRECRAWL_API_KEY = process.env.FIRECRAWL_API_KEY;
@@ -79,21 +80,6 @@ const TREND_QUERIES = {
   ],
   influencer: INFLUENCER_ACCOUNTS.map(a => `site:tiktok.com @${a} new`),
 };
-
-// RELEVANCE GATE — must mention Ghana/Africa/Accra/travel to pass
-const RELEVANCE_KEYWORDS = [
-  "ghana", "accra", "kumasi", "cape coast", "tamale", "elmina",
-  "west africa", "africa travel", "african", "detty december",
-  "year of return", "jollof", "kente", "ashanti", "volta",
-  "ghana travel", "visit ghana", "ghana trip", "ghana tour",
-  "ghana vacation", "ghana package", "ghana girls trip",
-  "akwaaba", "nightlife accra", "labadi", "osu",
-];
-
-function isGhanaRelevant(text: string): boolean {
-  const lower = text.toLowerCase();
-  return RELEVANCE_KEYWORDS.some(kw => lower.includes(kw));
-}
 
 function scoreTrend(title: string, desc: string): number {
   const text = `${title} ${desc}`.toLowerCase();

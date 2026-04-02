@@ -1,4 +1,5 @@
 import type { Lead, ScanResult } from "./types";
+import { isGhanaRelevant } from "./ghana-filter";
 
 const USER_AGENT = "akwaaba-lead-scanner/1.0 (travel research)";
 
@@ -164,7 +165,7 @@ export async function runRedditScan(scanType: "intent" | "detty" | "full"): Prom
 
       for (const post of posts) {
         const fullPostText = `${post.title} ${post.selftext}`;
-        if (isSignal(fullPostText)) {
+        if (isSignal(fullPostText) && isGhanaRelevant(fullPostText)) {
           allLeads.push({
             handle: `u/${post.author}`,
             platform: "Reddit",
@@ -184,7 +185,7 @@ export async function runRedditScan(scanType: "intent" | "detty" | "full"): Prom
 
           for (const comment of comments) {
             if (comment.author === "[deleted]" || comment.author === "AutoModerator") continue;
-            if (isSignal(comment.body)) {
+            if (isSignal(comment.body) && isGhanaRelevant(comment.body)) {
               allLeads.push({
                 handle: `u/${comment.author}`,
                 platform: "Reddit",

@@ -1,4 +1,5 @@
 import type { Lead, ScanResult } from "./types";
+import { isGhanaRelevant } from "./ghana-filter";
 
 const APIFY_TOKEN = process.env.APIFY_API_TOKEN;
 const TIKTOK_ACTOR = "clockworks~tiktok-scraper";
@@ -121,7 +122,7 @@ export async function runApifyScan(scanType: "intent" | "detty" | "full"): Promi
       const engagement = `${(plays / 1000).toFixed(0)}K plays, ${likes} likes, ${comments} comments`;
       const creatorInfo = fans > 10000 ? ` (${(fans / 1000).toFixed(0)}K followers)` : "";
 
-      if (isSignal(text)) {
+      if (isSignal(text) && isGhanaRelevant(text)) {
         allLeads.push({
           handle: `@${author}`,
           platform: "TikTok",

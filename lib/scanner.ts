@@ -1,4 +1,5 @@
 import type { Lead, ScanResult } from "./types";
+import { isGhanaRelevant } from "./ghana-filter";
 
 const BRAVE_API_KEY = process.env.BRAVE_API_KEY;
 const BRAVE_SEARCH_URL = "https://api.search.brave.com/res/v1/web/search";
@@ -10,17 +11,6 @@ const BUYING_SIGNALS = [
   "package", "first time", "detty december", "who's going",
   "booking", "itinerary", "cost", "tour guide", "bucket list",
 ];
-
-const GHANA_KEYWORDS = [
-  "ghana", "accra", "kumasi", "cape coast", "tamale", "elmina",
-  "west africa", "detty december", "year of return", "ashanti",
-  "volta", "labadi", "osu", "akwaaba", "jollof", "kente",
-  "africa travel", "african trip",
-];
-
-function isGhanaRelevant(text: string): boolean {
-  return GHANA_KEYWORDS.some(kw => text.toLowerCase().includes(kw));
-}
 
 const PAIN_SIGNALS = [
   "too expensive", "overpriced", "ripped off", "scammed",

@@ -1,4 +1,5 @@
 import type { Lead, ScanResult } from "./types";
+import { isGhanaRelevant } from "./ghana-filter";
 
 const BRAVE_API_KEY = process.env.BRAVE_API_KEY;
 
@@ -75,7 +76,7 @@ export async function runQuoraScan(scanType: "intent" | "detty" | "full"): Promi
     for (const r of batch) {
       if (!r.url.includes("quora.com")) continue;
       const fullText = `${r.title} ${r.description}`;
-      if (isSignal(fullText)) {
+      if (isSignal(fullText) && isGhanaRelevant(fullText)) {
         const authorMatch = r.url.match(/quora\.com\/profile\/([^/]+)/);
         const handle = authorMatch ? authorMatch[1].replace(/-/g, " ") : r.title.slice(0, 40);
         allLeads.push({

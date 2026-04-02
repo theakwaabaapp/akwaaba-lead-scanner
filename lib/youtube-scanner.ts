@@ -1,4 +1,5 @@
 import type { Lead, ScanResult } from "./types";
+import { isGhanaRelevant } from "./ghana-filter";
 
 const BRAVE_API_KEY = process.env.BRAVE_API_KEY;
 const BRAVE_VIDEO_URL = "https://api.search.brave.com/res/v1/videos/search";
@@ -207,7 +208,7 @@ export async function runYouTubeScan(scanType: "intent" | "detty" | "full"): Pro
   // Check video titles + descriptions for signals
   for (const video of uniqueVideos) {
     const fullText = `${video.title} ${video.description}`;
-    if (isSignal(fullText)) {
+    if (isSignal(fullText) && isGhanaRelevant(fullText)) {
       // Extract channel name from title (often "Title - YouTube" or "Title | Channel")
       const channelMatch = video.title.match(/[-|]\s*([^-|]+?)(?:\s*-\s*YouTube)?$/);
       const channel = channelMatch ? channelMatch[1].trim() : video.title.slice(0, 30);
@@ -230,7 +231,7 @@ export async function runYouTubeScan(scanType: "intent" | "detty" | "full"): Pro
     if (!video.videoId) continue;
     const comments = await fetchYouTubeComments(video.videoId);
     for (const comment of comments) {
-      if (isSignal(comment.text)) {
+      if (isSignal(comment.text) && isGhanaRelevant(comment.text)) {
         allLeads.push({
           handle: comment.author || "YouTube user",
           platform: "YouTube" as Lead["platform"],
