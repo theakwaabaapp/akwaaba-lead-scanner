@@ -59,7 +59,7 @@ function extractHandle(title: string, url: string): string {
 async function braveWebSearch(query: string): Promise<Array<{ title: string; url: string; description: string }>> {
   if (!BRAVE_API_KEY) throw new Error("BRAVE_API_KEY not configured");
 
-  const params = new URLSearchParams({ q: query, count: "20" });
+  const params = new URLSearchParams({ q: query, count: "20", freshness: "pm" }); // pm = past month
   const res = await fetch(`${BRAVE_SEARCH_URL}?${params}`, {
     headers: {
       "Accept": "application/json",
@@ -81,7 +81,7 @@ async function braveWebSearch(query: string): Promise<Array<{ title: string; url
 async function braveVideoSearch(query: string): Promise<Array<{ title: string; url: string; description: string }>> {
   if (!BRAVE_API_KEY) throw new Error("BRAVE_API_KEY not configured");
 
-  const params = new URLSearchParams({ q: query, count: "20" });
+  const params = new URLSearchParams({ q: query, count: "20", freshness: "pm" });
   const res = await fetch(`${BRAVE_VIDEO_URL}?${params}`, {
     headers: {
       "Accept": "application/json",

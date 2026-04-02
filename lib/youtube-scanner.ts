@@ -58,7 +58,7 @@ interface VideoResult {
 async function braveVideoSearch(query: string): Promise<VideoResult[]> {
   if (!BRAVE_API_KEY) throw new Error("BRAVE_API_KEY not configured");
 
-  const params = new URLSearchParams({ q: query, count: "20" });
+  const params = new URLSearchParams({ q: query, count: "20", freshness: "pm" });
   const res = await fetch(`${BRAVE_VIDEO_URL}?${params}`, {
     headers: {
       "Accept": "application/json",

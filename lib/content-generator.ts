@@ -12,7 +12,7 @@ interface TrendingVideo {
 
 async function braveVideoSearch(query: string): Promise<TrendingVideo[]> {
   if (!BRAVE_API_KEY) throw new Error("BRAVE_API_KEY not configured");
-  const params = new URLSearchParams({ q: query, count: "20" });
+  const params = new URLSearchParams({ q: query, count: "20", freshness: "pm" });
   const res = await fetch(`https://api.search.brave.com/res/v1/videos/search?${params}`, {
     headers: { Accept: "application/json", "X-Subscription-Token": BRAVE_API_KEY },
   });
@@ -29,7 +29,7 @@ async function braveVideoSearch(query: string): Promise<TrendingVideo[]> {
 
 async function braveWebSearch(query: string) {
   if (!BRAVE_API_KEY) throw new Error("BRAVE_API_KEY not configured");
-  const params = new URLSearchParams({ q: query, count: "10" });
+  const params = new URLSearchParams({ q: query, count: "10", freshness: "pm" });
   const res = await fetch(`https://api.search.brave.com/res/v1/web/search?${params}`, {
     headers: { Accept: "application/json", "X-Subscription-Token": BRAVE_API_KEY },
   });
