@@ -1,26 +1,47 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --akwaaba-green: #2d6a4f;
+  --akwaaba-green-light: #40916c;
+  --akwaaba-green-dark: #1b4332;
+  --akwaaba-gold: #d4a843;
+  --akwaaba-gold-light: #e8c547;
+  --akwaaba-cream: #faf8f0;
+  --akwaaba-dark: #1a1a1a;
+  --background: #faf8f0;
+  --foreground: #1a1a1a;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-akwaaba-green: var(--akwaaba-green);
+  --color-akwaaba-green-light: var(--akwaaba-green-light);
+  --color-akwaaba-green-dark: var(--akwaaba-green-dark);
+  --color-akwaaba-gold: var(--akwaaba-gold);
+  --color-akwaaba-gold-light: var(--akwaaba-gold-light);
+  --color-akwaaba-cream: var(--akwaaba-cream);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Pulse animation for scanning state */
+@keyframes scan-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.animate-scan-pulse {
+  animation: scan-pulse 1.5s ease-in-out infinite;
+}
+
+/* Score badge colors */
+.score-5 { background: #dc2626; color: white; }
+.score-4 { background: #ea580c; color: white; }
+.score-3 { background: #d97706; color: white; }
+.score-2 { background: #2d6a4f; color: white; }
+.score-1 { background: #6b7280; color: white; }
