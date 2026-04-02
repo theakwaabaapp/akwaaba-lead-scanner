@@ -92,10 +92,16 @@ const BLOCKED_TERMS = [
   "real estate investment", "weight loss", "diet plan",
   "nail salon", "hair salon", "car dealership", "auto repair",
   "pet grooming", "dog walking", "plumber", "electrician",
-  // Hair/beauty products (Ghana Twist, Ghana Braids etc are hair products not travel)
+  // Hair/beauty products
   "coco twist", "twist pack", "ghana twist", "ghana braid",
   "braiding hair", "crochet hair", "wig install", "lace front",
   "hair product", "hair extension",
+  // Dental/medical
+  "tooth filling", "dental", "dentist", "crown filling",
+  "root canal", "tooth extraction", "orthodont",
+  // Product listings / commerce (French + English)
+  "prix unité", "prix caisse", "disponible", "cocotwist",
+  "wholesale price", "bulk order",
   // Entertainment
   "video game", "gaming", "fortnite", "minecraft",
   "movie review", "film review", "tv show",
