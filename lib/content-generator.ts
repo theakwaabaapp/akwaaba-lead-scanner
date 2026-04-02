@@ -80,10 +80,14 @@ export async function runContentScan(scanType: string): Promise<ScanResult> {
       TRENDING_QUERIES.map(q => braveVideoSearch(q).catch(() => []))
     );
 
+    const GHANA_KEYWORDS = ["ghana", "accra", "kumasi", "cape coast", "detty december", "west africa", "africa travel", "akwaaba", "ashanti", "volta", "labadi", "osu", "elmina"];
+    const isRelevant = (text: string) => GHANA_KEYWORDS.some(kw => text.toLowerCase().includes(kw));
+
     const seen = new Set<string>();
     for (const batch of trendingResults) {
       for (const video of batch) {
         if (seen.has(video.url)) continue;
+        if (!isRelevant(`${video.title} ${video.description}`)) continue;
         seen.add(video.url);
 
         // Extract creator handle

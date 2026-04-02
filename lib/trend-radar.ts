@@ -80,6 +80,21 @@ const TREND_QUERIES = {
   influencer: INFLUENCER_ACCOUNTS.map(a => `site:tiktok.com @${a} new`),
 };
 
+// RELEVANCE GATE — must mention Ghana/Africa/Accra/travel to pass
+const RELEVANCE_KEYWORDS = [
+  "ghana", "accra", "kumasi", "cape coast", "tamale", "elmina",
+  "west africa", "africa travel", "african", "detty december",
+  "year of return", "jollof", "kente", "ashanti", "volta",
+  "ghana travel", "visit ghana", "ghana trip", "ghana tour",
+  "ghana vacation", "ghana package", "ghana girls trip",
+  "akwaaba", "nightlife accra", "labadi", "osu",
+];
+
+function isGhanaRelevant(text: string): boolean {
+  const lower = text.toLowerCase();
+  return RELEVANCE_KEYWORDS.some(kw => lower.includes(kw));
+}
+
 function scoreTrend(title: string, desc: string): number {
   const text = `${title} ${desc}`.toLowerCase();
   if (text.includes("viral") || text.includes("million views") || text.includes("breaking")) return 5;
@@ -127,6 +142,7 @@ export async function runTrendRadar(scanType: string): Promise<ScanResult> {
   for (const batch of videoResults) {
     for (const v of batch) {
       if (seenUrls.has(v.url)) continue;
+      if (!isGhanaRelevant(`${v.title} ${v.description}`)) continue;
       seenUrls.add(v.url);
       const tiktokMatch = v.url.match(/tiktok\.com\/@([^/]+)/);
       const handle = tiktokMatch ? `@${tiktokMatch[1]}` : v.title.slice(0, 35);
@@ -146,6 +162,7 @@ export async function runTrendRadar(scanType: string): Promise<ScanResult> {
   for (const batch of newsResults) {
     for (const n of batch) {
       if (seenUrls.has(n.url)) continue;
+      if (!isGhanaRelevant(`${n.title} ${n.description}`)) continue;
       seenUrls.add(n.url);
       allLeads.push({
         handle: new URL(n.url).hostname.replace("www.", ""),
@@ -163,6 +180,7 @@ export async function runTrendRadar(scanType: string): Promise<ScanResult> {
   for (const batch of webResults) {
     for (const w of batch) {
       if (seenUrls.has(w.url)) continue;
+      if (!isGhanaRelevant(`${w.title} ${w.description}`)) continue;
       seenUrls.add(w.url);
       allLeads.push({
         handle: new URL(w.url).hostname.replace("www.", ""),
