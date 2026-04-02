@@ -10,7 +10,7 @@ import {
   type LeadStatus, type StoredLead,
 } from "@/lib/lead-store";
 
-type ActiveTab = "social" | "reddit" | "youtube" | "quora" | "competitors" | "saved";
+type ActiveTab = "social" | "reddit" | "youtube" | "quora" | "competitors" | "content" | "saved";
 type ScanType = "intent" | "detty" | "full";
 type CompetitorScanType = "pricing" | "content" | "full";
 
@@ -20,6 +20,7 @@ const TAB_CONFIG: Record<string, { icon: string; label: string; color: string; e
   youtube: { icon: "▶️", label: "YouTube", color: "red", endpoint: "/api/youtube-scan" },
   quora: { icon: "❓", label: "Quora", color: "red", endpoint: "/api/quora-scan" },
   competitors: { icon: "🔍", label: "Competitors", color: "purple", endpoint: "/api/competitor-scan" },
+  content: { icon: "🎬", label: "Content Lab", color: "pink", endpoint: "/api/content-scan" },
   saved: { icon: "⭐", label: "Saved", color: "yellow", endpoint: "" },
 };
 
@@ -48,6 +49,12 @@ const SCAN_LABELS: Record<string, Record<string, { label: string; desc: string; 
     pricing: { label: "Pricing Intel", desc: "Competitor package prices", icon: "💰" },
     content: { label: "Content Watch", desc: "Latest competitor posts", icon: "📝" },
     full: { label: "Full Scan", desc: "Pricing + content together", icon: "⚡" },
+  },
+  content: {
+    trending: { label: "Trending Now", desc: "Currently viral Ghana travel content to react to", icon: "📈" },
+    ideas: { label: "Content Ideas", desc: "Hook templates + content gap analysis", icon: "💡" },
+    creators: { label: "Find Creators", desc: "Active Ghana travel creators to collab with", icon: "🤝" },
+    full: { label: "Full Lab", desc: "Trending + ideas + creators all at once", icon: "⚡" },
   },
 };
 
