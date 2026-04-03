@@ -70,7 +70,11 @@ const BLOCKED_TERMS = [
   "building collapse", "accident", "fire outbreak",
   // Sports
   "black stars", "premier league", "football match", "goal highlight",
-  "champions league",
+  "champions league", "deutschland", "österreich", "letztes spiel",
+  "rettet", "traumstart", "wm-jahr", "germany vs ghana", "ghana vs",
+  // Non-Ghana destinations (these leak when "all inclusive" matches)
+  "barbados", "bahamas", "maldives", "dominican republic",
+  "turks and caicos", "aruba", "bermuda",
   // Entertainment (not travel)
   "video game", "gaming", "fortnite", "minecraft",
   "movie review", "film review", "tv show", "nollywood",
