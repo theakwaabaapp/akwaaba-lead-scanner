@@ -1,5 +1,12 @@
 import type { Lead, ScanResult } from "./types";
-import { isGhanaRelevant } from "./ghana-filter";
+// Quora queries already target Ghana travel specifically, so we use a lighter filter
+const QUORA_BLOCKED = [
+  "election", "parliament", "football", "black stars", "crypto", "bitcoin",
+  "hair product", "braiding", "ghana twist", "recipe",
+];
+function isQuoraRelevant(text: string): boolean {
+  return !QUORA_BLOCKED.some(bt => text.toLowerCase().includes(bt));
+}
 
 const BRAVE_API_KEY = process.env.BRAVE_API_KEY;
 
@@ -76,7 +83,7 @@ export async function runQuoraScan(scanType: "intent" | "detty" | "full"): Promi
     for (const r of batch) {
       if (!r.url.includes("quora.com")) continue;
       const fullText = `${r.title} ${r.description}`;
-      if (isSignal(fullText) && isGhanaRelevant(fullText)) {
+      if (isSignal(fullText) && isQuoraRelevant(fullText)) {
         const authorMatch = r.url.match(/quora\.com\/profile\/([^/]+)/);
         const handle = authorMatch ? authorMatch[1].replace(/-/g, " ") : r.title.slice(0, 40);
         allLeads.push({

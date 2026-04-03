@@ -1,5 +1,16 @@
 import type { Lead, ScanResult } from "./types";
-import { isGhanaRelevant } from "./ghana-filter";
+// Reddit scanner uses its own relevance check since posts in r/ghana
+// already have Ghana context — we just need travel intent OR buying signals
+const BLOCKED_TERMS = [
+  "election", "parliament", "football", "black stars", "premier league",
+  "nollywood", "crypto", "bitcoin", "forex", "hair product", "braiding",
+  "ghana twist", "coco twist", "recipe video", "prix unité",
+];
+
+function isRedditRelevant(text: string): boolean {
+  const lower = text.toLowerCase();
+  return !BLOCKED_TERMS.some(bt => lower.includes(bt));
+}
 
 const USER_AGENT = "akwaaba-lead-scanner/1.0 (travel research)";
 
@@ -165,7 +176,7 @@ export async function runRedditScan(scanType: "intent" | "detty" | "full"): Prom
 
       for (const post of posts) {
         const fullPostText = `${post.title} ${post.selftext}`;
-        if (isSignal(fullPostText) && isGhanaRelevant(fullPostText)) {
+        if (isSignal(fullPostText) && isRedditRelevant(fullPostText)) {
           allLeads.push({
             handle: `u/${post.author}`,
             platform: "Reddit",
@@ -185,7 +196,7 @@ export async function runRedditScan(scanType: "intent" | "detty" | "full"): Prom
 
           for (const comment of comments) {
             if (comment.author === "[deleted]" || comment.author === "AutoModerator") continue;
-            if (isSignal(comment.body) && isGhanaRelevant(comment.body)) {
+            if (isSignal(comment.body) && isRedditRelevant(comment.body)) {
               allLeads.push({
                 handle: `u/${comment.author}`,
                 platform: "Reddit",
