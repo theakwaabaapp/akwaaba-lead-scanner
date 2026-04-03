@@ -1,121 +1,102 @@
 /**
- * Shared Ghana relevance filter — used by ALL scanners.
- * Every result must pass BOTH checks:
- * 1. Contains at least one Ghana keyword
- * 2. Does NOT match any blocked terms
+ * Shared Ghana TRAVEL relevance filter — used by ALL scanners.
+ *
+ * TWO-GATE system:
+ * Gate 1: Must mention Ghana (or a Ghana-specific place)
+ * Gate 2: Must ALSO mention travel/tourism/trip/tour/experience
+ * Gate 3: Must NOT contain blocked terms
+ *
+ * This prevents Ghana news, politics, sports, hair products etc from leaking in.
  */
 
-const GHANA_KEYWORDS = [
-  // === COUNTRY ===
-  "ghana",
-
-  // === CITIES & TOWNS ===
-  "accra", "kumasi", "cape coast", "tamale", "elmina", "takoradi",
-  "koforidua", "sunyani", "bolgatanga", "wa ", "ho ghana",
-  "techiman", "tema", "sekondi", "nkawkaw", "obuasi", "winneba",
-  "axim", "busua", "kokrobite", "ada foah", "sogakope",
-
-  // === REGIONS ===
-  "ashanti region", "volta region", "northern region", "greater accra",
-  "western region", "eastern region", "central region", "upper east",
-  "upper west", "oti region", "bono region", "ahafo region",
-
-  // === NEIGHBORHOODS (Accra) ===
-  "labadi", "osu accra", "cantonments", "east legon", "labone",
-  "airport residential", "ridge accra", "madina", "spintex",
-  "tema community", "teshie", "nungua",
-
-  // === LANDMARKS & ATTRACTIONS ===
-  "makola market", "jamestown accra", "kwame nkrumah memorial",
-  "kakum national park", "kakum canopy", "mole national park",
-  "wli waterfalls", "boti falls", "kintampo waterfalls",
-  "cape coast castle", "elmina castle", "fort amsterdam",
-  "slave castle", "door of no return",
-  "mount afadjato", "lake volta", "lake bosomtwe",
-  "aburi botanical", "shai hills", "ankasa",
-  "larabanga mosque", "manhyia palace", "kejetia market",
-
-  // === BEACHES ===
-  "labadi beach", "busua beach", "kokrobite beach", "axim beach",
-  "anomabo beach", "ada foah beach", "paradise beach ghana",
-
-  // === CULTURE & EVENTS ===
-  "detty december", "year of return", "beyond the return",
-  "december in ghana", "ghana december",
-  "homowo", "chale wote", "afrochella", "afro nation ghana",
-  "panafest", "emancipation day ghana", "odwira", "damba festival",
-  "aboakyer", "hogbetsotso", "ghana independence day",
-  "kente cloth", "kente", "adinkra", "ashanti culture",
-  "highlife music", "azonto", "jama",
-
-  // === FOOD ===
-  "jollof ghana", "waakye", "banku", "fufu ghana", "kenkey",
-  "red red ghana", "kelewele", "ghana food tour",
-  "chop bar", "eatwithafia",
-
-  // === TRAVEL TERMS + GHANA ===
-  "ghana travel", "ghana trip", "ghana tour", "ghana vacation",
-  "ghana package", "ghana girls trip", "ghana honeymoon",
-  "ghana corporate retreat", "ghana safari", "ghana food tour",
-  "visit ghana", "visiting ghana", "explore ghana",
-  "ghana itinerary", "ghana budget", "ghana cost",
-  "ghana visa", "ghana flight", "ghana hotel", "ghana hostel",
-  "ghana airbnb", "ghana nightlife", "ghana beach",
-  "ghana festival", "ghana guide", "ghana tips",
-  "ghana solo travel", "ghana group trip", "ghana family trip",
-  "first time ghana", "never been to ghana",
-  "ghana 2026", "ghana 2025",
-
-  // === AFRICA TRAVEL (specific enough) ===
-  "west africa travel", "west african travel",
-  "gold coast africa",
-
-  // === GHANA TRAVEL CREATORS ===
-  "beverlyadaeze", "findingmeroe", "eatwithafia",
-
-  // === BRAND ===
+// Gate 1: Ghana identity — proves the content is ABOUT Ghana
+const GHANA_IDENTITY = [
+  "ghana", "accra", "kumasi", "cape coast", "tamale", "elmina",
+  "takoradi", "koforidua", "busua", "kokrobite", "ada foah",
+  "labadi", "osu", "east legon", "cantonments",
+  "ashanti", "volta region", "kakum", "mole national",
+  "cape coast castle", "elmina castle", "wli waterfalls",
+  "detty december", "afrochella", "afro nation",
+  "chale wote", "homowo", "panafest",
   "akwaaba",
 ];
 
-// Explicit blocklist — these are NEVER relevant
+// Gate 2: Travel intent — proves it's about TRAVEL, not just Ghana news
+const TRAVEL_INTENT = [
+  // Direct travel terms
+  "travel", "trip", "tour", "visit", "vacation", "holiday",
+  "itinerary", "package", "all inclusive", "all-inclusive",
+  "booking", "book", "flight", "hotel", "hostel", "airbnb",
+  "resort", "accommodation", "stay",
+  // Planning signals
+  "planning", "plan a trip", "first time", "bucket list",
+  "how much", "cost", "budget", "afford", "spend",
+  "passport", "visa", "requirements",
+  // Experience terms
+  "things to do", "nightlife", "beach", "food tour", "safari",
+  "explore", "experience", "adventure", "vlog", "guide",
+  "attraction", "sightseeing", "cultural", "heritage",
+  // Group travel
+  "girls trip", "group trip", "solo travel", "honeymoon",
+  "corporate retreat", "team building",
+  // Specific Akwaaba terms
+  "detty december", "year of return", "beyond the return",
+  "afrochella", "afro nation", "chale wote",
+  // Travel content signals
+  "traveltok", "traveltiktok", "blacktravel", "travelvlog",
+  "ghanatravel", "visitghana", "ghanatrip", "ghanavacation",
+];
+
+// Gate 3: Explicit blocklist — NEVER relevant
 const BLOCKED_TERMS = [
-  // Food/restaurant (not Ghana-specific)
-  "benihana", "olive garden", "red lobster", "chick-fil-a",
-  "mcdonalds", "starbucks", "chipotle",
-  // Yacht/luxury unrelated
-  "yacht charter", "charter a yacht", "superyacht",
-  // Relationships
-  "relationship theory", "dating advice", "boyfriend", "girlfriend drama",
-  // Finance
-  "crypto", "bitcoin", "nft", "stock market", "mortgage", "credit score",
-  // Unrelated services
-  "real estate investment", "weight loss", "diet plan",
-  "nail salon", "hair salon", "car dealership", "auto repair",
-  "pet grooming", "dog walking", "plumber", "electrician",
-  // Hair/beauty products
+  // Hair/beauty
   "coco twist", "twist pack", "ghana twist", "ghana braid",
-  "braiding hair", "crochet hair", "wig install", "lace front",
+  "braiding hair", "crochet hair", "wig", "lace front",
   "hair product", "hair extension",
   // Dental/medical
-  "tooth filling", "dental", "dentist", "crown filling",
-  "root canal", "tooth extraction", "orthodont",
-  // Product listings / commerce (French + English)
-  "prix unité", "prix caisse", "disponible", "cocotwist",
-  "wholesale price", "bulk order",
-  // Entertainment
+  "tooth filling", "dental", "dentist", "root canal",
+  // Product listings
+  "prix unité", "prix caisse", "disponible", "wholesale",
+  "bulk order",
+  // Food (not Ghana-specific food tours)
+  "benihana", "olive garden", "red lobster", "chick-fil-a",
+  "recipe video",
+  // Finance/crypto
+  "crypto", "bitcoin", "nft", "stock market", "mortgage",
+  "credit score", "forex",
+  // Politics/news (not travel)
+  "election", "parliament", "minister resign", "corruption",
+  "arrested", "court ruling", "sentence", "interpol",
+  "building collapse", "accident", "fire outbreak",
+  // Sports
+  "black stars", "premier league", "football match", "goal highlight",
+  "champions league",
+  // Entertainment (not travel)
   "video game", "gaming", "fortnite", "minecraft",
-  "movie review", "film review", "tv show",
-  // US/UK specific unrelated
-  "las vegas", "miami beach", "cancun", "bali resort",
+  "movie review", "film review", "tv show", "nollywood",
+  // Unrelated travel
+  "yacht charter", "las vegas", "cancun", "bali resort",
   "punta cana", "jamaica all inclusive",
+  // Relationships
+  "relationship theory", "dating advice",
+  // Jobs/business (not travel)
+  "job opening", "hiring", "in-demand skills", "employer",
+  "recruitment",
 ];
 
 export function isGhanaRelevant(text: string): boolean {
   const lower = text.toLowerCase();
 
-  // Must NOT contain blocked terms
+  // Gate 3: Block known garbage first (fastest check)
   if (BLOCKED_TERMS.some(bt => lower.includes(bt))) return false;
 
-  // Must contain at least one Ghana keyword
-  return GHANA_KEYWORDS.some(kw => lower.includes(kw));
+  // Gate 1: Must mention Ghana or a Ghana-specific place
+  const hasGhanaIdentity = GHANA_IDENTITY.some(kw => lower.includes(kw));
+  if (!hasGhanaIdentity) return false;
+
+  // Gate 2: Must ALSO mention travel/tourism intent
+  const hasTravelIntent = TRAVEL_INTENT.some(kw => lower.includes(kw));
+  if (!hasTravelIntent) return false;
+
+  return true;
 }

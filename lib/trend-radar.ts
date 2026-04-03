@@ -56,36 +56,40 @@ async function braveNewsSearch(query: string) {
 // Trend detection queries — what's happening RIGHT NOW in Ghana travel
 const TREND_QUERIES = {
   viral: [
-    "ghana travel viral this week tiktok",
-    "ghana trending travel content new",
-    "accra viral tiktok this week",
-    "detty december 2026 news update",
-    "ghana tourism news this week",
-    "west africa travel trending",
+    "ghana travel trip vlog viral tiktok 2026",
+    "accra travel experience viral tiktok 2026",
+    "detty december 2026 trip planning package",
+    "ghana vacation tour viral this week",
+    "ghana girls trip travel tiktok 2026",
+    "first time visiting ghana vlog 2026",
   ],
   news: [
-    "ghana travel news 2026",
-    "ghana tourism announcement",
-    "ghana visa policy change 2026",
-    "accra new hotel restaurant opening",
-    "ghana festival event 2026",
-    "ghana airline new route",
+    "ghana tourism travel news 2026",
+    "ghana visa travel policy 2026",
+    "accra new hotel resort opening 2026",
+    "ghana travel festival event 2026",
+    "ghana airline travel route 2026",
+    "ghana tourism board announcement 2026",
   ],
   controversy: [
-    "ghana travel controversy",
-    "ghana tourism complaint",
-    "ghana scam tourist warning",
-    "detty december drama controversy",
-    "ghana travel negative experience",
+    "ghana travel tourist scam warning 2026",
+    "ghana hotel overpriced tourist complaint",
+    "detty december trip expensive overpriced",
+    "ghana travel bad experience tourist",
+    "ghana tour operator complaint review",
   ],
-  influencer: INFLUENCER_ACCOUNTS.map(a => `site:tiktok.com @${a} new`),
+  influencer: INFLUENCER_ACCOUNTS.map(a => `site:tiktok.com @${a} ghana travel`),
 };
 
 function scoreTrend(title: string, desc: string): number {
   const text = `${title} ${desc}`.toLowerCase();
-  if (text.includes("viral") || text.includes("million views") || text.includes("breaking")) return 5;
-  if (text.includes("trending") || text.includes("new") || text.includes("just")) return 4;
-  if (text.includes("update") || text.includes("announce") || text.includes("launch")) return 3;
+  // 5 = actionable for Akwaaba (trip planning, package mentions, booking intent)
+  if (["book", "package", "all inclusive", "how much", "planning trip"].some(w => text.includes(w))) return 5;
+  // 4 = high engagement travel content (react/stitch opportunity)
+  if (["vlog", "travel guide", "itinerary", "things to do", "girls trip"].some(w => text.includes(w))) return 4;
+  // 3 = relevant travel content
+  if (["travel", "visit", "trip", "tour", "vacation", "explore"].some(w => text.includes(w))) return 3;
+  // 2 = tangentially related
   return 2;
 }
 
